@@ -199,17 +199,20 @@ local function close_date_format(format)
   call_fn("udat_close", format)
 end
 
-function _M.formats.pattern(pattern)
-  if format_cache[pattern] then
-    return format_cache[pattern]
+function _M.formats.pattern(pattern, locale)
+  locale = locale or "en_US"
+  if format_cache[pattern] and format_cache[pattern][locale] then
+    return format_cache[pattern][locale]
   end
 
   local pattern_uchar = string_to_uchar(pattern)
   local status_ptr = ffi.new(uerrorcode_type)
-  local format = call_fn_check_status("udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, "en_US", nil, 0, pattern_uchar, -1, status_ptr)
+  local format = call_fn_check_status("udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, locale, nil, 0, pattern_uchar, -1, status_ptr)
   ffi.gc(format, close_date_format)
 
-  format_cache[pattern] = format
+  format_cache[pattern] = format_cache[pattern] or {}
+  format_cache[pattern][locale] = format
+
   return format
 end
 
