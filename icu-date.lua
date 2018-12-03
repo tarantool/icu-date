@@ -35,7 +35,8 @@ local function check_status(status, result)
       -- print("WARNING: " .. error_name)
       return result
     else
-      error("Invalid status: " .. (tostring(error_name) or "") .. ". Result: " .. (tostring(result) or ""))
+        return nil, ("Invalid status: %q. Result: %q"):format(tostring(error_name) or "",
+                                                             tostring(result) or "")
     end
   end
 end
@@ -113,7 +114,10 @@ function _M:get_time_zone_id()
     result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
     call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, self.status_ptr)
   else
-    check_status(status)
+      local rc, err = check_status(status, true)
+      if rc == nil then
+          return nil, err
+      end
   end
 
   return uchar_to_string(result)
@@ -134,9 +138,15 @@ function _M:format(format)
   if status == icu.U_BUFFER_OVERFLOW_ERROR then
     result_length = needed_length + 1
     result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
-    call_fn_check_status("udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
+    local rc, err = call_fn_check_status("udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
+    if rc == nil then
+        return rc, err
+    end
   else
-    check_status(status)
+    local rc, err = check_status(status, true)
+    if rc == nil then
+      return nil, err
+    end
   end
 
   return uchar_to_string(result)
@@ -150,7 +160,7 @@ function _M:parse(format, text, options)
 
   local text_uchar = string_to_uchar(text)
   local position_ptr = ffi.new("int32_t[1]")
-  call_fn_check_status("udat_parseCalendar", format, self.cal, text_uchar, -1, position_ptr, self.status_ptr)
+  return call_fn_check_status("udat_parseCalendar", format, self.cal, text_uchar, -1, position_ptr, self.status_ptr)
 end
 
 local function close_cal(cal)
@@ -181,7 +191,10 @@ function _M.new(options)
   end
 
   local status_ptr = ffi.new(uerrorcode_type)
-  local cal = call_fn_check_status("ucal_open", zone_id, -1, locale, calendar_type, status_ptr)
+  local cal, err = call_fn_check_status("ucal_open", zone_id, -1, locale, calendar_type, status_ptr)
+  if cal == nil then
+      return nil, err
+  end
   ffi.gc(cal, close_cal)
 
   local self = {
@@ -207,7 +220,10 @@ function _M.formats.pattern(pattern, locale)
 
   local pattern_uchar = string_to_uchar(pattern)
   local status_ptr = ffi.new(uerrorcode_type)
-  local format = call_fn_check_status("udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, locale, nil, 0, pattern_uchar, -1, status_ptr)
+  local format, err = call_fn_check_status("udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, locale, nil, 0, pattern_uchar, -1, status_ptr)
+  if format == nil then
+      return nil, err
+  end
   ffi.gc(format, close_date_format)
 
   format_cache[pattern] = format_cache[pattern] or {}
