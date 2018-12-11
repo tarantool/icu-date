@@ -27,6 +27,7 @@ end
 ```
 
 Parse date from string with format.
+Format pattern parts described here [http://userguide.icu-project.org/formatparse/datetime](http://userguide.icu-project.org/formatparse/datetime)
 ``` lua
 local format_date, err = icu_date.formats.pattern("yyyy-MM-dd")
 if err ~= nil then
