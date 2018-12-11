@@ -1,6 +1,8 @@
 # icu-date
 
-LuaJIT FFI bindings to [ICU (International Components for Unicode)](http://site.icu-project.org). ICU provides a robust date and time library that correctly and efficiently handles complexities of dealing with dates and times:
+LuaJIT FFI bindings to [ICU (International Components for Unicode)](http://site.icu-project.org).
+ICU provides a robust date and time library that correctly and efficiently
+handles complexities of dealing with dates and times:
 
 - Date and time formatting
 - Date and time parsing
@@ -10,16 +12,45 @@ LuaJIT FFI bindings to [ICU (International Components for Unicode)](http://site.
 - Leap years
 - ISO 8601 formatting and parsing
 
-## Usage
+## Tutorial
+
+First of all make date/time container object
 
 ```lua
-local icu_date = require "icu-date"
+local icu_date = require("icu-date")
 
--- Create a new date object.
-local date = icu_date.new()
+-- Create a new date object and check result
+local date, err = icu_date.new({locale="en_US"}) -- default locale can be omitted
+if err ~= nil then
+  return nil, err
+end
+```
 
+Parse date from string with format.
+``` lua
+local format_date, err = icu_date.formats.pattern("yyyy-MM-dd")
+if err ~= nil then
+  return nil, err
+end
+local rc, err = date:parse(format_date, "2016-09-18")
+if err ~= nil then
+  return nil, err
+end
+```
+
+Get milliseconds for parsed date
+
+``` lua
+local millis, err = date:get_millis()
+if err ~= nil then
+  return nil, err
+end
+```
+
+Also
+
+```lua
 -- You can get and set the date's timestamp.
-date:get_millis() -- Defaults to current time.
 date:set_millis(1507836727123)
 
 -- You can generate an ISO 8601 formatted string.
@@ -65,7 +96,6 @@ date:add(icu_date.fields.HOUR_OF_DAY, 5)
 date:format(format_iso8601) -- "2017-11-05T04:19:30.000-07:00"
 ```
 
-## Performance
 
 ## API
 

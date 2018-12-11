@@ -32,11 +32,10 @@ local function check_status(status, result)
   else
     local error_name = ffi.string(call_fn("u_errorName", status))
     if status >= icu.U_ERROR_WARNING_START and status < icu.U_ERROR_WARNING_LIMIT then
-      -- print("WARNING: " .. error_name)
       return result
     else
-        return nil, ("Invalid status: %q. Result: %q"):format(tostring(error_name) or "",
-                                                             tostring(result) or "")
+      return nil, ("Invalid status: %q. Result: %q"):format(tostring(error_name) or "",
+                                                            tostring(result) or "")
     end
   end
 end
