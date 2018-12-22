@@ -14,6 +14,7 @@ local _M = {}
 _M.__index = _M
 
 local function call_fn(name, ...)
+  assert(select(1, ...))
   return icu[name .. icu_version_suffix](...)
 end
 
