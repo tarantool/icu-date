@@ -14,7 +14,6 @@ local _M = {}
 _M.__index = _M
 
 local function call_fn(name, ...)
-  assert(select(1, ...))
   return icu[name .. icu_version_suffix](...)
 end
 
@@ -63,48 +62,58 @@ local function uchar_to_string(uchar)
 end
 
 function _M:get(field)
-  assert(field)
+  assert(field, "Field is not specified")
+  assert(self.cal, "Calendar is not specified")
   return call_fn_check_status("ucal_get", self.cal, field, self.status_ptr)
 end
 
 function _M:set(field, value)
-  assert(field)
+  assert(field, "Field is not specified")
+  assert(self.cal, "Calendar is not specified")
   return call_fn("ucal_set", self.cal, field, value)
 end
 
 function _M:add(field, amount)
-  assert(field)
+  assert(field, "Field is not specified")
+  assert(self.cal, "Calendar is not specified")
   return call_fn_check_status("ucal_add", self.cal, field, amount, self.status_ptr)
 end
 
 function _M:clear()
+  assert(self.cal, "Calendar is not specified")
   return call_fn("ucal_clear", self.cal)
 end
 
 function _M:clear_field(field)
-  assert(field)
+  assert(field, "Field is not specified")
+  assert(self.cal, "Calendar is not specified")
   return call_fn("ucal_clear", self.cal, field)
 end
 
 function _M:get_millis()
+  assert(self.cal, "Calendar is not specified")
   return call_fn_check_status("ucal_getMillis", self.cal, self.status_ptr)
 end
 
 function _M:set_millis(value)
+  assert(self.cal, "Calendar is not specified")
   return call_fn_check_status("ucal_setMillis", self.cal, value, self.status_ptr)
 end
 
 function _M:get_attribute(attribute)
-  assert(attribute)
+  assert(attribute, "Attribute is not specified")
+  assert(self.cal, "Calendar is not specified")
   return call_fn("ucal_getAttribute", self.cal, attribute)
 end
 
 function _M:set_attribute(attribute, value)
-  assert(attribute)
+  assert(attribute, "Attribute is not specified")
+  assert(self.cal, "Calendar is not specified")
   return call_fn("ucal_setAttribute", self.cal, attribute, value)
 end
 
 function _M:get_time_zone_id()
+  assert(self.cal, "Calendar is not specified")
   local result_length = 64
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
@@ -124,13 +133,15 @@ function _M:get_time_zone_id()
 end
 
 function _M:set_time_zone_id(zone_id)
-  assert(zone_id)
+  assert(zone_id, "Zone id is not specified")
+  assert(self.cal, "Calendar is not specified")
   zone_id = string_to_uchar(zone_id)
   return call_fn_check_status("ucal_setTimeZone", self.cal, zone_id, -1, self.status_ptr)
 end
 
 function _M:format(format)
-  assert(format)
+  assert(format, "Format is not specified")
+  assert(self.cal, "Calendar is not specified")
   local result_length = 64
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
@@ -153,7 +164,8 @@ function _M:format(format)
 end
 
 function _M:parse(format, text, options)
-  assert(format)
+  assert(format, "Format is not specified")
+  assert(self.cal, "Calendar is not specified")
   if not options or options["clear"] ~= false then
     _M.clear(self)
   end
@@ -167,28 +179,16 @@ local function close_cal(cal)
   call_fn("ucal_close", cal)
 end
 
+local DEFAULT_ZONE_ID = "UTC"
+local DEFAULT_LOCALE = "en_US"
+
 function _M.new(options)
-  local zone_id
-  local locale
-  local calendar_type
-  if options then
-    zone_id = options["zone_id"]
-    locale = options["locale"]
-    calendar_type = options["calendar_type"]
-  end
+  options = options or {}
 
-  if not zone_id then
-    zone_id = "UTC"
-  end
+  local zone_id = options["zone_id"] or DEFAULT_ZONE_ID
+  local locale = options["locale"] or DEFAULT_LOCALE
+  local calendar_type = options["calendar_type"] or _M.calendar_types.GREGORIAN
   zone_id = string_to_uchar(zone_id)
-
-  if not locale then
-    locale = "en_US"
-  end
-
-  if not calendar_type then
-    calendar_type = _M.calendar_types.GREGORIAN
-  end
 
   local status_ptr = ffi.new(uerrorcode_type)
   local cal, err = call_fn_check_status("ucal_open", zone_id, -1, locale, calendar_type, status_ptr)
