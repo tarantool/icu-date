@@ -61,59 +61,64 @@ local function uchar_to_string(uchar)
   return ffi.string(str)
 end
 
+local function check_self_type(self, func)
+  assert(type(self) == "table", ("Use date:%s(...) instead of date.%s(...)"):format(func, func))
+  assert(self.cal, "Calendar is not specified")
+end
+
 function _M:get(field)
   assert(field, "Field is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "get")
   return call_fn_check_status("ucal_get", self.cal, field, self.status_ptr)
 end
 
 function _M:set(field, value)
   assert(field, "Field is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "set")
   return call_fn("ucal_set", self.cal, field, value)
 end
 
 function _M:add(field, amount)
   assert(field, "Field is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "add")
   return call_fn_check_status("ucal_add", self.cal, field, amount, self.status_ptr)
 end
 
 function _M:clear()
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "clear")
   return call_fn("ucal_clear", self.cal)
 end
 
 function _M:clear_field(field)
   assert(field, "Field is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "clear_field")
   return call_fn("ucal_clear", self.cal, field)
 end
 
 function _M:get_millis()
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "get_millis")
   return call_fn_check_status("ucal_getMillis", self.cal, self.status_ptr)
 end
 
 function _M:set_millis(value)
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "set_millis")
   return call_fn_check_status("ucal_setMillis", self.cal, value, self.status_ptr)
 end
 
 function _M:get_attribute(attribute)
   assert(attribute, "Attribute is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "get_attribute")
   return call_fn("ucal_getAttribute", self.cal, attribute)
 end
 
 function _M:set_attribute(attribute, value)
   assert(attribute, "Attribute is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "set_attribute")
   return call_fn("ucal_setAttribute", self.cal, attribute, value)
 end
 
 function _M:get_time_zone_id()
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "get_time_zone_id")
   local result_length = 64
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
@@ -134,14 +139,14 @@ end
 
 function _M:set_time_zone_id(zone_id)
   assert(zone_id, "Zone id is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "set_time_zone_id")
   zone_id = string_to_uchar(zone_id)
   return call_fn_check_status("ucal_setTimeZone", self.cal, zone_id, -1, self.status_ptr)
 end
 
 function _M:format(format)
   assert(format, "Format is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "format")
   local result_length = 64
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
@@ -165,7 +170,7 @@ end
 
 function _M:parse(format, text, options)
   assert(format, "Format is not specified")
-  assert(self.cal, "Calendar is not specified")
+  check_self_type(self, "parse")
   if not options or options["clear"] ~= false then
     _M.clear(self)
   end
