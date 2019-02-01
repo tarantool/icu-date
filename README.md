@@ -97,6 +97,19 @@ date:add(icu_date.fields.HOUR_OF_DAY, 5)
 date:format(format_iso8601) -- "2017-11-05T04:19:30.000-07:00"
 ```
 
+## Timezones
+
+There is simple way to setup time zone:
+
+``` lua
+date = icu.new({zone_id='Europe/Moscow'})
+```
+
+There is another way, using time shift from GMT.
+
+``` lua
+date = icu.new({zone_id='GMT+3'})
+```
 
 ## API
 
