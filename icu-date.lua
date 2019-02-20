@@ -4,9 +4,7 @@ local icu_ffi_cdef = require("icu-date.ffi_cdef")
 local box = require("box")
 
 local icu_version_suffix = detect_icu_version_suffix()
-box.once('icu-date:init', function()
-  icu_ffi_cdef(ffi, icu_version_suffix)
-end)
+icu_ffi_cdef(ffi, icu_version_suffix)
 local icu = ffi.C
 
 local uerrorcode_type = ffi.typeof("UErrorCode[1]")
