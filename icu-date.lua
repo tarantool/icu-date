@@ -92,7 +92,7 @@ end
 function _M:clear_field(field)
   assert(field, "Field is not specified")
   check_self_type(self, "clear_field")
-  return call_fn("ucal_clear", self.cal, field)
+  return call_fn("ucal_clearField", self.cal, field)
 end
 
 function _M:get_millis()
