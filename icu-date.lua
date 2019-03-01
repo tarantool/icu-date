@@ -150,11 +150,13 @@ function _M:format(format)
   local result_length = 64
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
-  local status, needed_length = call_fn_status("udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
+  local status, needed_length = call_fn_status(
+          "udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
   if status == icu.U_BUFFER_OVERFLOW_ERROR then
     result_length = needed_length + 1
     result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
-    local rc, err = call_fn_check_status("udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
+    local rc, err = call_fn_check_status(
+            "udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
     if rc == nil then
         return rc, err
     end
@@ -225,7 +227,8 @@ function _M.formats.pattern(pattern, locale)
 
   local pattern_uchar = string_to_uchar(pattern)
   local status_ptr = ffi.new(uerrorcode_type)
-  local format, err = call_fn_check_status("udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, locale, nil, 0, pattern_uchar, -1, status_ptr)
+  local format, err = call_fn_check_status(
+          "udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, locale, nil, 0, pattern_uchar, -1, status_ptr)
   if format == nil then
       return nil, err
   end

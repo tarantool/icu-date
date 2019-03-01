@@ -1,3 +1,5 @@
+-- luacheck: push max_line_length 300
+
 return function(ffi, icu_version_suffix)
   pcall(ffi.cdef, [[
     void* malloc(size_t size);
@@ -254,3 +256,5 @@ return function(ffi, icu_version_suffix)
     void ucal_setTimeZone]] .. icu_version_suffix .. [[(UCalendar* cal, const UChar* zoneID, int32_t len, UErrorCode* status);
   ]])
 end
+
+-- luacheck: pop
