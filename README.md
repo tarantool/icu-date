@@ -125,6 +125,13 @@ The `options` table accepts the following fields:
 - `locale`: (default: `en_US`)
 - `calendar_type`: (default: `calendar_types.GREGORIAN`)
 
+### now
+
+**syntax:** `now = icu_date.now()`
+
+Get the current date and time in milliseconds from the epoch. 
+Returned value is double.
+
 ### calendar_types
 
 **syntax:** `fields = icu_date.calendar_types`

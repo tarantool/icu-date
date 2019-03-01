@@ -227,7 +227,30 @@ return function(ffi, icu_version_suffix)
       UCAL_REPEATED_WALL_TIME,
       UCAL_SKIPPED_WALL_TIME
     } UCalendarAttribute;
-
+    typedef enum UCalendarDaysOfWeek {
+      UCAL_SUNDAY = 1,
+      UCAL_MONDAY,
+      UCAL_TUESDAY,
+      UCAL_WEDNESDAY,
+      UCAL_THURSDAY,
+      UCAL_FRIDAY,
+      UCAL_SATURDAY
+    } UCalendarDaysOfWeek;
+    typedef enum UCalendarMonths {
+      UCAL_JANUARY,
+      UCAL_FEBRUARY,
+      UCAL_MARCH,
+      UCAL_APRIL,
+      UCAL_MAY,
+      UCAL_JUNE,
+      UCAL_JULY,
+      UCAL_AUGUST,
+      UCAL_SEPTEMBER,
+      UCAL_OCTOBER,
+      UCAL_NOVEMBER,
+      UCAL_DECEMBER,
+      UCAL_UNDECIMBER
+    } UCalendarMonths;
     int32_t u_strlen]] .. icu_version_suffix .. [[(const UChar* s);
     UChar* u_uastrcpy]] .. icu_version_suffix .. [[(UChar* dst, const char* src);
     char* u_austrcpy]] .. icu_version_suffix .. [[(char* dst, const UChar* src);
@@ -252,5 +275,6 @@ return function(ffi, icu_version_suffix)
     void ucal_setAttribute]] .. icu_version_suffix .. [[(UCalendar* cal, UCalendarAttribute attr, int32_t newValue);
     int32_t ucal_getTimeZoneID]] .. icu_version_suffix .. [[(const UCalendar* cal, UChar* result, int32_t resultLength, UErrorCode* status) ;
     void ucal_setTimeZone]] .. icu_version_suffix .. [[(UCalendar* cal, const UChar* zoneID, int32_t len, UErrorCode* status);
+    UDate ucal_getNow]] .. icu_version_suffix .. [[(void);
   ]])
 end

@@ -210,6 +210,10 @@ function _M.new(options)
   return setmetatable(self, _M)
 end
 
+function _M.now()
+  return call_fn("ucal_getNow")
+end
+
 _M.formats = {}
 local format_cache = {}
 
@@ -281,6 +285,32 @@ _M.attributes = {
   MINIMAL_DAYS_IN_FIRST_WEEK = icu.UCAL_MINIMAL_DAYS_IN_FIRST_WEEK,
   REPEATED_WALL_TIME = icu.UCAL_REPEATED_WALL_TIME,
   SKIPPED_WALL_TIME = icu.UCAL_SKIPPED_WALL_TIME,
+}
+
+_M.months = {
+  JANUARY = icu.UCAL_JANUARY,
+  FEBRUARY = icu.UCAL_FEBRUARY,
+  MARCH = icu.UCAL_MARCH,
+  APRIL = icu.UCAL_APRIL,
+  MAY = icu.UCAL_MAY,
+  JUNE = icu.UCAL_JUNE,
+  JULY = icu.UCAL_JULY,
+  AUGUST = icu.UCAL_AUGUST,
+  SEPTEMBER = icu.UCAL_SEPTEMBER,
+  OCTOBER = icu.UCAL_OCTOBER,
+  NOVEMBER = icu.UCAL_NOVEMBER,
+  DECEMBER = icu.UCAL_DECEMBER,
+  UNDECIMBER = icu.UCAL_UNDECIMBER,
+}
+
+_M.days_of_week = {
+  SUNDAY = icu.UCAL_SUNDAY,
+  MONDAY = icu.UCAL_MONDAY,
+  TUESDAY = icu.UCAL_TUESDAY,
+  WEDNESDAY = icu.UCAL_WEDNESDAY,
+  THURSDAY = icu.UCAL_THURSDAY,
+  FRIDAY = icu.UCAL_FRIDAY,
+  SATURDAY = icu.UCAL_SATURDAY,
 }
 
 return _M
