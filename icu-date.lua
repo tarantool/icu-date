@@ -63,7 +63,7 @@ end
 
 local function check_self_type(self, func)
   assert(type(self) == "table", ("Use date:%s(...) instead of date.%s(...)"):format(func, func))
-  assert(self.cal, "Calendar is not specified")
+  assert(self.cal ~= nil, "Calendar is not specified")
 end
 
 function _M:get(field)
