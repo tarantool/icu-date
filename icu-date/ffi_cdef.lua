@@ -1,3 +1,5 @@
+-- luacheck: push max_line_length 300
+
 return function(ffi, icu_version_suffix)
   pcall(ffi.cdef, [[
     void* malloc(size_t size);
@@ -278,3 +280,5 @@ return function(ffi, icu_version_suffix)
     UDate ucal_getNow]] .. icu_version_suffix .. [[(void);
   ]])
 end
+
+-- luacheck: pop
