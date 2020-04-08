@@ -9,6 +9,8 @@ local icu = ffi.C
 local uerrorcode_type = ffi.typeof("UErrorCode[1]")
 local uchar_size = ffi.sizeof("UChar")
 local char_size = ffi.sizeof("char")
+local position_ptr = ffi.new("int32_t[1]")
+local status_ptr = ffi.new(uerrorcode_type)
 
 local _M = {}
 _M.__index = _M
@@ -18,8 +20,6 @@ local function call_fn(name, ...)
 end
 
 local function call_fn_status(name, ...)
-  local length = select("#", ...)
-  local status_ptr = select(length, ...)
   status_ptr[0] = icu.U_ZERO_ERROR
 
   local result = call_fn(name, ...)
@@ -69,7 +69,7 @@ end
 function _M:get(field)
   assert(field, "Field is not specified")
   check_self_type(self, "get")
-  return call_fn_check_status("ucal_get", self.cal, field, self.status_ptr)
+  return call_fn_check_status("ucal_get", self.cal, field, status_ptr)
 end
 
 function _M:set(field, value)
@@ -81,7 +81,7 @@ end
 function _M:add(field, amount)
   assert(field, "Field is not specified")
   check_self_type(self, "add")
-  return call_fn_check_status("ucal_add", self.cal, field, amount, self.status_ptr)
+  return call_fn_check_status("ucal_add", self.cal, field, amount, status_ptr)
 end
 
 function _M:clear()
@@ -97,12 +97,12 @@ end
 
 function _M:get_millis()
   check_self_type(self, "get_millis")
-  return call_fn_check_status("ucal_getMillis", self.cal, self.status_ptr)
+  return call_fn_check_status("ucal_getMillis", self.cal, status_ptr)
 end
 
 function _M:set_millis(value)
   check_self_type(self, "set_millis")
-  return call_fn_check_status("ucal_setMillis", self.cal, value, self.status_ptr)
+  return call_fn_check_status("ucal_setMillis", self.cal, value, status_ptr)
 end
 
 function _M:get_attribute(attribute)
@@ -122,11 +122,11 @@ function _M:get_time_zone_id()
   local result_length = 64
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
-  local status, needed_length = call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, self.status_ptr)
+  local status, needed_length = call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, status_ptr)
   if status == icu.U_BUFFER_OVERFLOW_ERROR then
     result_length = needed_length + 1
     result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
-    call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, self.status_ptr)
+    call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, status_ptr)
   else
       local rc, err = check_status(status, true)
       if rc == nil then
@@ -137,11 +137,21 @@ function _M:get_time_zone_id()
   return uchar_to_string(result)
 end
 
+local zone_id_cache = {}
+local function get_zone_id_cstr(zone_id)
+  local zone_id_cstr = zone_id_cache[zone_id]
+  if zone_id_cstr ~= nil then
+    return zone_id_cstr
+  end
+  zone_id_cache[zone_id] = string_to_uchar(zone_id)
+  return zone_id_cache[zone_id]
+end
+
 function _M:set_time_zone_id(zone_id)
   assert(zone_id, "Zone id is not specified")
   check_self_type(self, "set_time_zone_id")
-  zone_id = string_to_uchar(zone_id)
-  return call_fn_check_status("ucal_setTimeZone", self.cal, zone_id, -1, self.status_ptr)
+  zone_id = get_zone_id_cstr(zone_id)
+  return call_fn_check_status("ucal_setTimeZone", self.cal, zone_id, -1, status_ptr)
 end
 
 function _M:format(format)
@@ -151,12 +161,12 @@ function _M:format(format)
   local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
 
   local status, needed_length = call_fn_status(
-          "udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
+          "udat_formatCalendar", format, self.cal, result, result_length, nil, status_ptr)
   if status == icu.U_BUFFER_OVERFLOW_ERROR then
     result_length = needed_length + 1
     result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
     local rc, err = call_fn_check_status(
-            "udat_formatCalendar", format, self.cal, result, result_length, nil, self.status_ptr)
+            "udat_formatCalendar", format, self.cal, result, result_length, nil, status_ptr)
     if rc == nil then
         return rc, err
     end
@@ -178,8 +188,8 @@ function _M:parse(format, text, options)
   end
 
   local text_uchar = string_to_uchar(text)
-  local position_ptr = ffi.new("int32_t[1]")
-  return call_fn_check_status("udat_parseCalendar", format, self.cal, text_uchar, -1, position_ptr, self.status_ptr)
+  position_ptr[0] = 0
+  return call_fn_check_status("udat_parseCalendar", format, self.cal, text_uchar, -1, position_ptr, status_ptr)
 end
 
 local function close_cal(cal)
@@ -195,9 +205,8 @@ function _M.new(options)
   local zone_id = options["zone_id"] or DEFAULT_ZONE_ID
   local locale = options["locale"] or DEFAULT_LOCALE
   local calendar_type = options["calendar_type"] or _M.calendar_types.GREGORIAN
-  zone_id = string_to_uchar(zone_id)
+  zone_id = get_zone_id_cstr(zone_id)
 
-  local status_ptr = ffi.new(uerrorcode_type)
   local cal, err = call_fn_check_status("ucal_open", zone_id, -1, locale, calendar_type, status_ptr)
   if cal == nil then
       return nil, err
@@ -206,7 +215,6 @@ function _M.new(options)
 
   local self = {
     cal = cal,
-    status_ptr = status_ptr,
   }
 
   return setmetatable(self, _M)
@@ -230,7 +238,6 @@ function _M.formats.pattern(pattern, locale)
   end
 
   local pattern_uchar = string_to_uchar(pattern)
-  local status_ptr = ffi.new(uerrorcode_type)
   local format, err = call_fn_check_status(
           "udat_open", icu.UDAT_PATTERN, icu.UDAT_PATTERN, locale, nil, 0, pattern_uchar, -1, status_ptr)
   if format == nil then
