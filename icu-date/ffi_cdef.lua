@@ -7,6 +7,7 @@ return function(ffi, icu_version_suffix)
 
     typedef uint16_t UChar;
     typedef void* UCalendar;
+    typedef bool UBool;
     typedef double UDate;
     typedef void* UDateFormat;
     typedef enum UErrorCode {
@@ -260,6 +261,7 @@ return function(ffi, icu_version_suffix)
     const char* u_errorName]] .. icu_version_suffix .. [[(UErrorCode code);
 
     UDateFormat* udat_open]] .. icu_version_suffix .. [[(UDateFormatStyle timeStyle, UDateFormatStyle dateStyle, const char* locale, const UChar* tzID, int32_t tzIDLength, const UChar* pattern, int32_t patternLength, UErrorCode* status);
+    void udat_setLenient]] .. icu_version_suffix .. [[(UDateFormat* fmt, UBool isLenient);
     void udat_close]] .. icu_version_suffix .. [[(UDateFormat* format);
     void udat_parseCalendar]] .. icu_version_suffix .. [[(const UDateFormat* format, UCalendar* calendar, const UChar* text, int32_t textLength, int32_t* parsePos, UErrorCode* status);
     int32_t udat_formatCalendar]] .. icu_version_suffix .. [[(const UDateFormat* format, UCalendar* calendar, UChar* result, int32_t capacity, UFieldPosition* position, UErrorCode* status);
