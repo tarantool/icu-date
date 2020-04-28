@@ -244,7 +244,7 @@ function _M.formats.pattern(pattern, locale)
       return nil, err
   end
   ffi.gc(format, close_date_format)
-
+  call_fn('udat_setLenient', format, false)
   format_cache[pattern] = format_cache[pattern] or {}
   format_cache[pattern][locale] = format
 

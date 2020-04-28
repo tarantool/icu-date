@@ -5,7 +5,7 @@ local icu_date = require('icu-date')
 local tap = require('tap')
 
 local test = tap.test("parse")
-test:plan(6)
+test:plan(7)
 
 test:test("parses iso8601 date and time", function(test)
               test:plan(2)
@@ -66,6 +66,27 @@ test:test("can disable clearing date", function(test)
               local format = icu_date.formats.pattern("yyyy-MM-dd")
               date:parse(format, "2016-09-18", { clear = false })
               test:is("2016-09-18T19:32:07.123Z", date:format(icu_date.formats.iso8601()))
+end)
+
+--[[
+    By default, parsing is lenient: If the input is not in the form used by
+    this object's format method but can still be parsed as a date, then the
+    parse succeeds. Clients may insist on strict adherence to the format by
+    calling setLenient(false).
+    https://github.com/unicode-org/icu/blob/master/icu4c/source/i18n/unicode/datefmt.h
+--]]
+test:test("parsing is not lenient",
+          function(test)
+              test:plan(4)
+              local date = icu_date.new()
+              local format1 = icu_date.formats.pattern("yyyy-MM-dd")
+              local ok, err = date:parse(format1, "2016-13-18")
+              test:is(ok, nil)
+              test:is(err, 'Invalid status: "U_PARSE_ERROR". Result: "nil"')
+              local format2 = icu_date.formats.pattern('yyyyMMdd\'T\'HHmmss')
+              local ok, err = date:parse(format2, "q2020-50-50")
+              test:is(ok, nil)
+              test:is(err, 'Invalid status: "U_PARSE_ERROR". Result: "nil"')
 end)
 
 return test:check()
