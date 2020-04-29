@@ -21,5 +21,4 @@ test:test("accepts zone_id", function(test)
               test:is("2017-10-12T13:32:07.123-06:00", date:format(format))
 end)
 
-
-return test:check()
+os.exit(test:check() and 0 or 1)

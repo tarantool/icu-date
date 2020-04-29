@@ -47,4 +47,4 @@ test:test("wraps values", date_test,
               test:ok("2018-01-12T19:32:07.123Z" == date:format(format))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

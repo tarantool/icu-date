@@ -47,4 +47,4 @@ test:test("custom pattern format with en_US locale", date_test,
               test:ok("12 October 2017" == date:format(format))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

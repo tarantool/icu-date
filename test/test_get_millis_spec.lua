@@ -26,4 +26,4 @@ test:test("gets milliseconds", date_test,
               test:ok(1507836727123 == date:get_millis())
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

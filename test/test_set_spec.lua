@@ -238,4 +238,4 @@ test:test("sets day of month", date_test,
               test:is("2017-10-01T19:32:07.123Z", date:format(format))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

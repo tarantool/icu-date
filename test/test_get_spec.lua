@@ -164,4 +164,4 @@ test:test("gets day of month", date_test,
               test:is(12, date:get(fields.DAY_OF_MONTH))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)
