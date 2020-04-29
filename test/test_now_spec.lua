@@ -13,4 +13,4 @@ test:test("get current time", function(test)
               test:is(type(now), 'number')
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

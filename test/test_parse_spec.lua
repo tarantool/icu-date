@@ -89,4 +89,4 @@ test:test("parsing is not lenient",
               test:is(err, 'Invalid status: "U_PARSE_ERROR". Result: "nil"')
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

@@ -42,4 +42,4 @@ test:isnt(true, status, "parse(\"adsd\", \"asdfasdf\", {})")
 local status, _ = pcall(function () d:parse(nil, "", {}) end)
 test:isnt(true, status, "parse(nil, \"\", {})")
 
-return test:check()
+os.exit(test:check() and 0 or 1)

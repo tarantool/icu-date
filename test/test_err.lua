@@ -17,4 +17,4 @@ test:ok(ok == false, "Incorrect usage of icu-date.parse function")
 test:ok(err:endswith("Use date:parse(...) instead of date.parse(...)"),
                         "Incorrect usage of icu-date.parse function. Error message")
 
-return test:check()
+os.exit(test:check() and 0 or 1)

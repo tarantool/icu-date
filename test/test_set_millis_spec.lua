@@ -19,4 +19,4 @@ test:test("sets milliseconds", function(test)
               test:is("1970-01-01T00:00:01.000Z", date:format(format))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

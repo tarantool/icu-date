@@ -51,4 +51,4 @@ test:test("gets skipped wall time", date_test,
               test:ok(0 == date:get_attribute(attributes.SKIPPED_WALL_TIME))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)

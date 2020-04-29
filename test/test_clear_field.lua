@@ -14,4 +14,4 @@ test:test("clear date filed", function(test)
   test:ok(0 == date:get(icu_date.fields.MILLISECOND))
 end)
 
-return test:check()
+os.exit(test:check() and 0 or 1)
