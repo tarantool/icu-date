@@ -7,8 +7,6 @@ icu_ffi_cdef(ffi, icu_version_suffix)
 local icu = ffi.C
 
 local uerrorcode_type = ffi.typeof("UErrorCode[1]")
-local uchar_size = ffi.sizeof("UChar")
-local char_size = ffi.sizeof("char")
 local position_ptr = ffi.new("int32_t[1]")
 local status_ptr = ffi.new(uerrorcode_type)
 
@@ -47,16 +45,14 @@ end
 
 local function string_to_uchar(str)
   local length = string.len(str) + 1
-  local size = length * uchar_size
-  local uchar = ffi.gc(ffi.C.malloc(size), ffi.C.free)
+  local uchar = ffi.new('UChar[?]', length)
   call_fn("u_uastrcpy", uchar, str)
   return uchar
 end
 
 local function uchar_to_string(uchar)
   local length = call_fn("u_strlen", uchar) + 1
-  local size = length * char_size
-  local str = ffi.gc(ffi.C.malloc(size), ffi.C.free)
+  local str = ffi.new('char[?]', length)
   call_fn("u_austrcpy", str, uchar)
   return ffi.string(str)
 end
@@ -120,12 +116,12 @@ end
 function _M:get_time_zone_id()
   check_self_type(self, "get_time_zone_id")
   local result_length = 64
-  local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
+  local result = ffi.new('UChar[?]', result_length)
 
   local status, needed_length = call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, status_ptr)
   if status == icu.U_BUFFER_OVERFLOW_ERROR then
     result_length = needed_length + 1
-    result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
+    result = ffi.new('UChar[?]', result_length)
     call_fn_status("ucal_getTimeZoneID", self.cal, result, result_length, status_ptr)
   else
       local rc, err = check_status(status, true)
@@ -158,13 +154,13 @@ function _M:format(format)
   assert(format, "Format is not specified")
   check_self_type(self, "format")
   local result_length = 64
-  local result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
+  local result = ffi.new('UChar[?]', result_length)
 
   local status, needed_length = call_fn_status(
           "udat_formatCalendar", format, self.cal, result, result_length, nil, status_ptr)
   if status == icu.U_BUFFER_OVERFLOW_ERROR then
     result_length = needed_length + 1
-    result = ffi.gc(ffi.C.malloc(result_length * uchar_size), ffi.C.free)
+    result = ffi.new('UChar[?]', result_length)
     local rc, err = call_fn_check_status(
             "udat_formatCalendar", format, self.cal, result, result_length, nil, status_ptr)
     if rc == nil then
