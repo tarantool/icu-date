@@ -2,9 +2,6 @@
 
 return function(ffi, icu_version_suffix)
   pcall(ffi.cdef, [[
-    void* malloc(size_t size);
-    void free(void* ptr);
-
     typedef uint16_t UChar;
     typedef void* UCalendar;
     typedef bool UBool;
